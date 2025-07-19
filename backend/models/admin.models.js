@@ -3,47 +3,38 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const AdminSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
-    required: [true, 'Please add a name']
+    required: true,
+    unique: true
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
-    unique: true,
-    lowercase: true
+    required: true,
+    unique: true
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
+    required: true,
     select: false
   }
-}, { 
-  timestamps: true,
-  autoIndex: false // Disable automatic index creation
-});
+}, { timestamps: true });
 
-// Manually create the email index
-AdminSchema.index({ email: 1 }, { unique: true });
-
-// Password hashing
+// Hash password before saving
 AdminSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// JWT Token
+// Generate JWT token
 AdminSchema.methods.getJwtToken = function() {
-  return jwt.sign(
-    { id: this._id },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE || '30d' } // Fallback to 30 days
-  );
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE
+  });
 };
 
-// Compare password
+// Compare passwords
 AdminSchema.methods.comparePassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

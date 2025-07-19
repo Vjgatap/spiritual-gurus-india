@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./db/connect');
+const adminRoutes = require('./routes/admin.routes');
+const categoryRoutes = require('./routes/category.routes');
 
 // Load environment variables
 dotenv.config({ path: './.env' });
@@ -26,7 +28,9 @@ connectDB(); // Handles its own pretty logging
 // ========================
 // 🚦 Routes
 // ========================
-app.use('/api/v1/auth/admin', require('./routes/admin.routes'));
+
+app.use('/api/auth', adminRoutes);
+app.use('/api/v1/categories', categoryRoutes);
 
 
 // ========================
