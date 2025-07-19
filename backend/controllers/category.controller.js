@@ -50,8 +50,6 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Delete category (soft delete)
-// @route   DELETE /api/v1/categories/:id
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
   const category = await Category.findByIdAndUpdate(
     req.params.id,
